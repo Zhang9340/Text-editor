@@ -1,0 +1,4 @@
+(executable
+ (name text_editor)
+ (libraries graphics)
+ (modules text_editor textarea))
