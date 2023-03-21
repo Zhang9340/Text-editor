@@ -16,25 +16,20 @@ let load_file filename =
     try
       let line = input_line chan in
       loop (line :: acc)
-    with End_of_file ->(
+    with End_of_file ->
       close_in chan;
       {
         text = List.rev acc;
         cursor_pos = 0;
         selection_start = None;
         selection_end = None;
-      })
+      }
   in
   loop []
 
-let text_format state =
-  let lst = state.text in
-  let rec loop ls = match ls with
-    | hd :: tl -> 
-      (if tl == [] then hd else hd ^ "\n" ^ (loop tl))
-    | [] -> ""
-  in loop lst
-
+(* let text_format state = let lst = state.text in let rec loop ls = match ls
+   with | hd :: tl -> (if tl == [] then hd else hd ^ "\n" ^ (loop tl)) | [] ->
+   "" in loop lst *)
 
 let save_file state filename =
   let chan = open_out filename in
@@ -98,100 +93,44 @@ let move_cursor state offset =
     selection_start = None;
     selection_end = None;
   }
-(*
-type t = {
-  mutable x : int;
-  mutable y : int;
-  mutable width : int;
-  mutable height : int;
-  mutable bg_color : Graphics.color;
-  mutable text_color : Graphics.color;
-  mutable cursor_color : Graphics.color;
-  mutable text : string;
-  mutable cursor_pos : int;
-}
+(* type t = { mutable x : int; mutable y : int; mutable width : int; mutable
+   height : int; mutable bg_color : Graphics.color; mutable text_color :
+   Graphics.color; mutable cursor_color : Graphics.color; mutable text : string;
+   mutable cursor_pos : int; }
 
-let create x y width height bg_color text_color cursor_color =
-  {
-    x;
-    y;
-    width;
-    height;
-    bg_color;
-    text_color;
-    cursor_color;
-    text = "";
-    cursor_pos = 0;
-  }
+   let create x y width height bg_color text_color cursor_color = { x; y; width;
+   height; bg_color; text_color; cursor_color; text = ""; cursor_pos = 0; }
 
-  let contains_point area x y =
-    x >= area.x
-    && x < area.x + area.width
-    && y >= area.y
-    && y < area.y + area.height
-
-*)
+   let contains_point area x y = x >= area.x && x < area.x + area.width && y >=
+   area.y && y < area.y + area.height *)
 
 let select_text state start_pos end_pos =
   { state with selection_start = Some start_pos; selection_end = Some end_pos }
 
+(* let window_title = "Text Editor" let window_width = 800 let window_height =
+   600 let text_width = 600 let text_height = 400 let button_width = 100 let
+   button_height = 30
 
+   let main () = (* Open a window *) open_graph (Printf.sprintf " %dx%d"
+   window_width window_height); set_window_title window_title;
 
-(*
-let window_title = "Text Editor"
-let window_width = 800
-let window_height = 600
-let text_width = 600
-let text_height = 400
-let button_width = 100
-let button_height = 30
+   (* Create a text area *) let text_area = let x = (window_width - text_width)
+   / 2 in let y = (window_height - text_height) / 2 in let width = text_width in
+   let height = text_height in let bg_color = white in let text_color = black in
+   let cursor_color = black in Textarea.create x y width height bg_color
+   text_color cursor_color in Textarea.draw text_area;
 
-let main () =
-  (* Open a window *)
-  open_graph (Printf.sprintf " %dx%d" window_width window_height);
-  set_window_title window_title;
+   (* Create a "Save" button *) let save_button = let x = (window_width -
+   button_width) / 2 in let y = ((window_height - button_height) / 2) +
+   (text_height / 2) + 20 in let width = button_width in let height =
+   button_height in let text = "Save" in let bg_color = blue in let text_color =
+   white in Button.create x y width height text bg_color text_color in
+   Button.draw save_button;
 
-  (* Create a text area *)
-  let text_area =
-    let x = (window_width - text_width) / 2 in
-    let y = (window_height - text_height) / 2 in
-    let width = text_width in
-    let height = text_height in
-    let bg_color = white in
-    let text_color = black in
-    let cursor_color = black in
-    Textarea.create x y width height bg_color text_color cursor_color
-  in
-  Textarea.draw text_area;
-
-  (* Create a "Save" button *)
-  let save_button =
-    let x = (window_width - button_width) / 2 in
-    let y = ((window_height - button_height) / 2) + (text_height / 2) + 20 in
-    let width = button_width in
-    let height = button_height in
-    let text = "Save" in
-    let bg_color = blue in
-    let text_color = white in
-    Button.create x y width height text bg_color text_color
-  in
-  Button.draw save_button;
-
-  (* Event loop *)
-  let rec event_loop () =
-    let event = wait_next_event [ Button_down ] in
-    if Button.contains_point save_button event.mouse_x event.mouse_y then begin
-      let text = Textarea.get_text text_area in
-      let _ = Textarea.save_to_file text_area "output.txt" in
-      close_graph ();
-      exit 0
-    end
-    else if Textarea.contains_point text_area event.mouse_x event.mouse_y then begin
-      let _ = Textarea.handle_event text_area event in
-      Textarea.draw text_area;
-      event_loop ()
-    end
-    else event_loop ()
-  in
-  event_loop ()
-  *)
+   (* Event loop *) let rec event_loop () = let event = wait_next_event [
+   Button_down ] in if Button.contains_point save_button event.mouse_x
+   event.mouse_y then begin let text = Textarea.get_text text_area in let _ =
+   Textarea.save_to_file text_area "output.txt" in close_graph (); exit 0 end
+   else if Textarea.contains_point text_area event.mouse_x event.mouse_y then
+   begin let _ = Textarea.handle_event text_area event in Textarea.draw
+   text_area; event_loop () end else event_loop () in event_loop () *)
