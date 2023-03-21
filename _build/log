@@ -4,7 +4,7 @@
 # Workspace root:
 # /Users/peterwu/Desktop/Sophmore/CS_3110/3110/CS3110_Team_Project
 # Auto-detected concurrency: 8
-$ /Users/peterwu/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/bk/rjknb8sj4fn5xmfr8_8_hs1w0000gn/T/dune_779769_output
+$ /Users/peterwu/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/bk/rjknb8sj4fn5xmfr8_8_hs1w0000gn/T/dune_c1ced7_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -116,9 +116,6 @@ $ /Users/peterwu/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/bk/rj
 #      ; windows_unicode = false
 #      }
 #  }
-$ (cd _build/default && /Users/peterwu/.opam/cs3110-2023sp/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I .text_editor.eobjs/byte -I /Users/peterwu/.opam/cs3110-2023sp/lib/graphics -no-alias-deps -opaque -open Dune__exe -o .text_editor.eobjs/byte/dune__exe__Textarea.cmo -c -impl textarea.ml)
-> File "textarea.ml", line 43, characters 19-38:
-> 43 |     (area.x + 10 + Graphics.text_width (String.sub area.text 0 area.cursor_pos))
->                         ^^^^^^^^^^^^^^^^^^^
-> Error: Unbound value Graphics.text_width
-[2]
+$ (cd _build/default && /Users/peterwu/.opam/cs3110-2023sp/bin/ocamldep.opt -modules -impl text_editor.ml) > _build/default/.text_editor.eobjs/dune__exe__Text_editor.impl.d
+$ (cd _build/default && /Users/peterwu/.opam/cs3110-2023sp/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -I .text_editor.eobjs/byte -I .text_editor.eobjs/native -I /Users/peterwu/.opam/cs3110-2023sp/lib/graphics -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .text_editor.eobjs/native/dune__exe__Text_editor.cmx -c -impl text_editor.ml)
+$ (cd _build/default && /Users/peterwu/.opam/cs3110-2023sp/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -o text_editor.exe /Users/peterwu/.opam/cs3110-2023sp/lib/graphics/graphics.cmxa -I /Users/peterwu/.opam/cs3110-2023sp/lib/graphics .text_editor.eobjs/native/dune__exe.cmx .text_editor.eobjs/native/dune__exe__Text_editor.cmx)

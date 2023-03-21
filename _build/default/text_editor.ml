@@ -1,4 +1,4 @@
-open Graphics
+(* open Graphics *)
 
 type editor_state = {
   text : string list;
@@ -89,7 +89,7 @@ let move_cursor state offset =
     selection_start = None;
     selection_end = None;
   }
-
+(*
 type t = {
   mutable x : int;
   mutable y : int;
@@ -121,11 +121,14 @@ let create x y width height bg_color text_color cursor_color =
     && y >= area.y
     && y < area.y + area.height
 
-    
+*)
 
 let select_text state start_pos end_pos =
   { state with selection_start = Some start_pos; selection_end = Some end_pos }
 
+
+
+(*
 let window_title = "Text Editor"
 let window_width = 800
 let window_height = 600
@@ -182,3 +185,4 @@ let main () =
     else event_loop ()
   in
   event_loop ()
+  *)
