@@ -16,16 +16,25 @@ let load_file filename =
     try
       let line = input_line chan in
       loop (line :: acc)
-    with End_of_file ->
+    with End_of_file ->(
       close_in chan;
       {
         text = List.rev acc;
         cursor_pos = 0;
         selection_start = None;
         selection_end = None;
-      }
+      })
   in
   loop []
+
+let text_format state =
+  let lst = state.text in
+  let rec loop ls = match ls with
+    | hd :: tl -> 
+      (if tl == [] then hd else hd ^ "\n" ^ (loop tl))
+    | [] -> ""
+  in loop lst
+
 
 let save_file state filename =
   let chan = open_out filename in
