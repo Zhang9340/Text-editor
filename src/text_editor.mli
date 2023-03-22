@@ -23,6 +23,10 @@ val replace_str : editor_state -> string -> editor_state
 (** [replace_str s str] returns a new editor_state after replacing the text
     within range selection_start and selection_end with string str. *)
 
+val insert_str : editor_state -> int -> int -> string -> editor_state
+(** [insert_str s r c str] returns a new editor_state after inserting the text
+    string str within at position row r and column c. *)
+
 val move_cursor : editor_state -> int * int -> editor_state
 (** [move_cursor s (r c)] changes the cursor position by adding the row offset r
     and the column offset c to the current cursor position *)

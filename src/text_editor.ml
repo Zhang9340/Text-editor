@@ -91,6 +91,10 @@ let replace_str state s =
   let text = s |> update_row state |> update_all_rows state in
   { state with text; cursor_pos = option_tuple_get_int state.selection_start }
 
+let insert_str state pos_r pos_c s =
+  let file = select_text state pos_r pos_c pos_r pos_c in
+  replace_str file s
+
 let tuple_get_first t =
   match t with
   | r, _ -> r
