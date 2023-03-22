@@ -2,10 +2,6 @@ open OUnit2
 open Editor
 open Text_editor
 
-(* let compare_editor_state (expected : editor_state) (s : editor_state) = s =
-   expected
-
-   let get_text s = s.text *)
 let print_string_list my_list =
   let str_list = List.map (fun x -> "\"" ^ x ^ "\"") my_list in
   let str = String.concat "\n " str_list in
@@ -30,14 +26,26 @@ let print_editor_state state =
     "\ntext: %s\n cursor_pos: %s\n selection_start: %s\n selection_end: %s\n"
     text_str cursor_pos_str selection_start_str selection_end_str
 
-let load_file_test_text (name : string) (filename : string)
+(*[print_editor_state] is helper function that transfer editor module into
+  printable stirng*)
+
+let load_file_test (name : string) (filename : string)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (load_file filename) ~printer:print_editor_state
+(*[load_file_test] is the helper function to test the load_file function*)
+
+let select_text (name : string) (state : editor_state) (sr : int) (sc : int)
+    (er : int) (ec : int) (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (select_text state sr sc er ec)
+    ~printer:print_editor_state
+(*[load_file_test] is the helper function to test the load_file function*)
 
 let editor_test =
   [
-    load_file_test_text "Test the file is corrected loaded" "hello.txt"
+    load_file_test "Test the file is corrected loaded" "hello.txt"
       {
         text =
           [
@@ -49,6 +57,32 @@ let editor_test =
         cursor_pos = (0, 0);
         selection_start = None;
         selection_end = None;
+      };
+    select_text "Test the select_text funcction with input 0 ,0 ,0,5"
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      0 0 0 5
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 5);
       };
   ]
 
