@@ -3,8 +3,8 @@
 type editor_state = {
   text : string list;
   cursor_pos : int * int;
-  selection_start : int option * int option;
-  selection_end : int option * int option;
+  selection_start : (int * int) option;
+  selection_end : (int * int) option;
 }
 
 (* let create_editor_state () = { text = []; cursor_pos = (0, 0);
@@ -23,8 +23,8 @@ let load_file filename =
       {
         text = List.rev acc;
         cursor_pos = (0, 0);
-        selection_start = (None, None);
-        selection_end = (None, None);
+        selection_start = None;
+        selection_end = None;
       }
   in
   loop []
@@ -57,7 +57,7 @@ let update_in_one_row state s start_pos_r start_pos_c end_pos_c =
 
 let update_row state s =
   match (state.selection_start, state.selection_end) with
-  | (Some start_pos_r, Some start_pos_c), (Some end_pos_r, Some end_pos_c) ->
+  | Some (start_pos_r, start_pos_c), Some (end_pos_r, end_pos_c) ->
       if end_pos_r - start_pos_r = 0 then
         update_in_one_row state s start_pos_r start_pos_c end_pos_c
       else " " (* TODO: haven't implemented switch line change *)
@@ -65,7 +65,7 @@ let update_row state s =
 
 let update_all_rows state r =
   match (state.selection_start, state.selection_end) with
-  | (Some start_pos_r, _), (Some end_pos_r, _) ->
+  | Some (start_pos_r, _), Some (end_pos_r, _) ->
       let prefix = sublist 0 (start_pos_r - 1) (get_text state) in
       let suffix =
         sublist end_pos_r
@@ -77,19 +77,19 @@ let update_all_rows state r =
 
 let option_tuple_get_int t =
   match t with
-  | Some a, Some b -> (a, b)
+  | Some (a, b) -> (a, b)
   | _ -> failwith "internal error"
-
-let replace_str state s =
-  let text = s |> update_row state |> update_all_rows state in
-  { state with text; cursor_pos = option_tuple_get_int state.selection_start }
 
 let select_text state start_pos_r start_pos_c end_pos_r end_pos_c =
   {
     state with
-    selection_start = (Some start_pos_r, Some start_pos_c);
-    selection_end = (Some end_pos_r, Some end_pos_c);
+    selection_start = Some (start_pos_r, start_pos_c);
+    selection_end = Some (end_pos_r, end_pos_c);
   }
+
+let replace_str state s =
+  let text = s |> update_row state |> update_all_rows state in
+  { state with text; cursor_pos = option_tuple_get_int state.selection_start }
 
 let tuple_get_first t =
   match t with
@@ -113,8 +113,8 @@ let move_cursor state (offset_r, offset_c) =
   {
     state with
     cursor_pos = (new_pos_r, new_pos_c);
-    selection_start = (None, None);
-    selection_end = (None, None);
+    selection_start = None;
+    selection_end = None;
   }
 
 (* let delete_char state = let text = match (state.selection_start,
