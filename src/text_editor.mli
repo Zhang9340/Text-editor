@@ -16,12 +16,14 @@ val save_file : editor_state -> string -> unit
 
 val select_text : editor_state -> int -> int -> int -> int -> editor_state
 (** [select_text s sr sc er ec] selects text in editor_state from "row start
-    position" sr and "column start position" sc to "row end position" er and
-    "column end position" ec. Returns the new editor_state. *)
+    position" sr and "column start position" sc (inclusive), to "row end
+    position" er and "column end position" ec (inclusive). Returns the new
+    editor_state. *)
 
 val replace_str : editor_state -> string -> editor_state
-(** [replace_str s str] returns a new editor_state after replacing the text
-    within range selection_start and selection_end with string str. *)
+(** [replace_str s str] returns a new editor_state after replacing the text from
+    index selection_start (inclusive) to index selection_end (exclusive) with
+    string str. *)
 
 val insert_str : editor_state -> int -> int -> string -> editor_state
 (** [insert_str s r c str] returns a new editor_state after inserting the text
