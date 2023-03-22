@@ -7,13 +7,8 @@ type editor_state = {
   selection_end : int option * int option;
 }
 
-let create_editor_state () =
-  {
-    text = [];
-    cursor_pos = (0, 0);
-    selection_start = (None, None);
-    selection_end = (None, None);
-  }
+(* let create_editor_state () = { text = []; cursor_pos = (0, 0);
+   selection_start = (None, None); selection_end = (None, None); } *)
 
 let get_text state = state.text
 
@@ -34,14 +29,9 @@ let load_file filename =
   in
   loop []
 
-let text_format state =
-  let lst = get_text state in
-  let rec loop ls =
-    match ls with
-    | hd :: tl -> if tl == [] then hd else hd ^ "\n" ^ loop tl
-    | [] -> ""
-  in
-  loop lst
+(* let text_format state = let lst = get_text state in let rec loop ls = match
+   ls with | hd :: tl -> if tl == [] then hd else hd ^ "\n" ^ loop tl | [] -> ""
+   in loop lst *)
 
 let save_file state filename =
   let chan = open_out filename in
