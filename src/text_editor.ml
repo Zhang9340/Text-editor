@@ -8,7 +8,7 @@ type editor_state = {
 }
 
 (* let create_editor_state () = { text = []; cursor_pos = (0, 0);
-   selection_start = (None, None); selection_end = (None, None); } *)
+   selection_start = None; selection_end = None; } *)
 
 let get_text state = state.text
 
@@ -73,7 +73,7 @@ let update_all_rows state r =
           (get_text state)
       in
       prefix @ [ r ] @ suffix
-  | _ -> failwith "fail to update column"
+  | _ -> failwith "fail to update all rows"
 
 let option_tuple_get_int t =
   match t with
