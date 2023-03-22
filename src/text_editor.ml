@@ -49,11 +49,13 @@ module Text = struct
     close_out chan
 
   let rec sublist b e l =
-    match l with
-    | [] -> failwith "empty list"
-    | h :: t ->
-        let tail = if e = 0 then [] else sublist (b - 1) (e - 1) t in
-        if b > 0 then tail else h :: tail
+    if e <= b then []
+    else
+      match l with
+      | [] -> []
+      | h :: t ->
+          let tail = if e = 0 then [] else sublist (b - 1) (e - 1) t in
+          if b > 0 then tail else h :: tail
 
   let update_in_one_row state s start_pos_r start_pos_c end_pos_c =
     let stext = List.nth (get_text state) start_pos_r in
@@ -73,14 +75,11 @@ module Text = struct
 
   let update_all_rows state r =
     match (state.selection_start, state.selection_end) with
-    | (_, Some start_pos_c), (_, Some end_pos_c) ->
-        print_int (List.length (get_text state));
-        print_int start_pos_c;
-        print_int end_pos_c;
-        let prefix = sublist 0 start_pos_c (get_text state) in
+    | (Some start_pos_r, _), (Some end_pos_r, _) ->
+        let prefix = sublist 0 (start_pos_r - 1) (get_text state) in
         let suffix =
-          sublist end_pos_c
-            (List.length (get_text state) - end_pos_c)
+          sublist end_pos_r
+            (List.length (get_text state) - end_pos_r)
             (get_text state)
         in
         prefix @ [ r ] @ suffix
