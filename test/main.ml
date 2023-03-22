@@ -41,7 +41,14 @@ let select_text (name : string) (state : editor_state) (sr : int) (sc : int)
   assert_equal expected_output
     (select_text state sr sc er ec)
     ~printer:print_editor_state
-(*[load_file_test] is the helper function to test the load_file function*)
+(*[select_test name state sr sc er ec] is the helper function to test the
+  load_file function*)
+
+let move_cursor_text (name : string) (state : editor_state) (pos : int * int)
+    (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (move_cursor state pos)
+    ~printer:print_editor_state
 
 let editor_test =
   [
@@ -83,6 +90,32 @@ let editor_test =
         cursor_pos = (0, 0);
         selection_start = Some (0, 0);
         selection_end = Some (0, 5);
+      };
+    move_cursor_text "Test the move_cursor function with cursor position (1,3)"
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (1, 3)
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (1, 3);
+        selection_start = None;
+        selection_end = None;
       };
   ]
 
