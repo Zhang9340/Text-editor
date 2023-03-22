@@ -8,7 +8,7 @@ type editor_state = {
 }
 
 (* let create_editor_state () = { text = []; cursor_pos = (0, 0);
-   selection_start = (None, None); selection_end = (None, None); } *)
+   selection_start = None; selection_end = None; } *)
 
 let get_text state = state.text
 
@@ -38,14 +38,21 @@ let save_file state filename =
   List.iter (fun line -> output_string chan (line ^ "\n")) (get_text state);
   close_out chan
 
+(* [sublist begin end list] get the sublist from begin (inclusive) to end
+   (exclusive) *)
 let rec sublist b e l =
-  if e <= b then []
-  else
-    match l with
-    | [] -> []
-    | h :: t ->
-        let tail = if e = 0 then [] else sublist (b - 1) (e - 1) t in
-        if b > 0 then tail else h :: tail
+  match l with
+  | [] -> []
+  (* If the list is empty, return an empty list instead of raising an
+     exception *)
+  | h :: t ->
+      (* If the current index is within the range [b, e), include the current
+         element in the result *)
+      let head = if b <= 0 && e > 0 then [ h ] else [] in
+      (* Recursively extract the sublist from the tail of the list *)
+      let tail = sublist (b - 1) (e - 1) t in
+      (* Combine the head and tail to form the final result *)
+      head @ tail
 
 let update_in_one_row state s start_pos_r start_pos_c end_pos_c =
   let stext = List.nth (get_text state) start_pos_r in
@@ -63,17 +70,24 @@ let update_row state s =
       else " " (* TODO: haven't implemented switch line change *)
   | _ -> failwith "fail to update row"
 
+let print_string_list my_list =
+  let str_list = List.map (fun x -> "\"" ^ x ^ "\"") my_list in
+  let str = String.concat "\n " str_list in
+  "\n[" ^ str ^ "\n]"
+
 let update_all_rows state r =
   match (state.selection_start, state.selection_end) with
   | Some (start_pos_r, _), Some (end_pos_r, _) ->
-      let prefix = sublist 0 (start_pos_r - 1) (get_text state) in
+      let prefix = sublist 0 start_pos_r (get_text state) in
+      print_string ("Prefix: " ^ print_string_list prefix);
       let suffix =
-        sublist end_pos_r
+        sublist (end_pos_r + 1)
           (List.length (get_text state) - end_pos_r)
           (get_text state)
       in
+      print_string ("Suffix: " ^ print_string_list suffix);
       prefix @ [ r ] @ suffix
-  | _ -> failwith "fail to update column"
+  | _ -> failwith "fail to update all rows"
 
 let option_tuple_get_int t =
   match t with
@@ -90,6 +104,10 @@ let select_text state start_pos_r start_pos_c end_pos_r end_pos_c =
 let replace_str state s =
   let text = s |> update_row state |> update_all_rows state in
   { state with text; cursor_pos = option_tuple_get_int state.selection_start }
+
+let insert_str state pos_r pos_c s =
+  let file = select_text state pos_r pos_c pos_r pos_c in
+  replace_str file s
 
 let tuple_get_first t =
   match t with
