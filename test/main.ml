@@ -127,12 +127,13 @@ let editor_test =
         selection_end = None;
       };
     replace_str_test
-      "test the replace_str fucntion by replacing the letter with 'replace' "
+      "test the replace_str fucntion by replacing the letter\n\
+      \       with 'replace' "
       {
         text =
           [
             "Hello world!";
-            "Hello world!Hello world!Hello world!";
+            "Hello world!Hello\n       world!Hello world!";
             "Hello world!";
             "Hello world!Hello world!";
           ];
@@ -145,13 +146,40 @@ let editor_test =
         text =
           [
             "replace world!";
-            "Hello world!Hello world!Hello world!";
+            "Hello world!Hello\n       world!Hello world!";
             "Hello world!";
             "Hello world!Hello world!";
           ];
         cursor_pos = (0, 0);
         selection_start = Some (0, 0);
         selection_end = Some (0, 5);
+      };
+    replace_str_test
+      "test the replace_str fucntion by replacing the letter with 'abc' "
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (1, 30);
+        selection_end = Some (1, 35);
+      }
+      "abc"
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello abc!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (1, 30);
+        selection_start = Some (1, 30);
+        selection_end = Some (1, 35);
       };
   ]
 
