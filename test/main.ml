@@ -29,11 +29,20 @@ let print_editor_state state =
 (*[print_editor_state] is helper function that transfer editor module into
   printable stirng*)
 
+(*[replace_str_test] is the helper function to test the replace_str function*)
+let replace_str_test (name : string) (state : editor_state)
+    (replace_string : string) (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (replace_str state replace_string)
+    ~printer:print_editor_state
+
+(*[load_file_test] is the helper function to test the load_file function*)
+
 let load_file_test (name : string) (filename : string)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (load_file filename) ~printer:print_editor_state
-(*[load_file_test] is the helper function to test the load_file function*)
 
 let select_text (name : string) (state : editor_state) (sr : int) (sc : int)
     (er : int) (ec : int) (expected_output : editor_state) : test =
@@ -41,7 +50,14 @@ let select_text (name : string) (state : editor_state) (sr : int) (sc : int)
   assert_equal expected_output
     (select_text state sr sc er ec)
     ~printer:print_editor_state
-(*[load_file_test] is the helper function to test the load_file function*)
+(*[select_test name state sr sc er ec] is the helper function to test the
+  load_file function*)
+
+let move_cursor_text (name : string) (state : editor_state) (pos : int * int)
+    (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (move_cursor state pos)
+    ~printer:print_editor_state
 
 let editor_test =
   [
@@ -58,7 +74,7 @@ let editor_test =
         selection_start = None;
         selection_end = None;
       };
-    select_text "Test the select_text funcction with input 0 ,0 ,0,5"
+    select_text "Test the select_text function with input 0 ,0 ,0,5"
       {
         text =
           [
@@ -83,6 +99,87 @@ let editor_test =
         cursor_pos = (0, 0);
         selection_start = Some (0, 0);
         selection_end = Some (0, 5);
+      };
+    move_cursor_text "Test the move_cursor function with cursor position (1,3)"
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (1, 3)
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (1, 3);
+        selection_start = None;
+        selection_end = None;
+      };
+    replace_str_test
+      "test the replace_str fucntion by replacing the letter\n\
+      \       with 'replace' "
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello\n       world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 5);
+      }
+      "replace"
+      {
+        text =
+          [
+            "replace world!";
+            "Hello world!Hello\n       world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 5);
+      };
+    replace_str_test
+      "test the replace_str fucntion by replacing the letter with 'abc' "
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (1, 30);
+        selection_end = Some (1, 35);
+      }
+      "abc"
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello abc!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (1, 30);
+        selection_start = Some (1, 30);
+        selection_end = Some (1, 35);
       };
   ]
 
