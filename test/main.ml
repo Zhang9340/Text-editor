@@ -36,6 +36,7 @@ let replace_str_test (name : string) (state : editor_state)
   assert_equal expected_output
     (replace_str state replace_string)
     ~printer:print_editor_state
+
 (*[load_file_test] is the helper function to test the load_file function*)
 
 let load_file_test (name : string) (filename : string)
@@ -125,7 +126,8 @@ let editor_test =
         selection_start = None;
         selection_end = None;
       };
-    replace_str_test "string"
+    replace_str_test
+      "test the replace_str fucntion by replacing the letter with 'replace' "
       {
         text =
           [
