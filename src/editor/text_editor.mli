@@ -36,6 +36,3 @@ val move_cursor : editor_state -> int * int -> editor_state
 
 val word_count : editor_state -> int
 (** [word_count s] returns the word count of the editor_state s*)
-
-val word_count : editor_state -> int
-(** [word_count s] returns the word count of the editor_state s*)
