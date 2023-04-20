@@ -33,3 +33,9 @@ val insert_str : editor_state -> int -> int -> string -> editor_state
 val move_cursor : editor_state -> int * int -> editor_state
 (** [move_cursor s (r c)] changes the cursor position by adding the row offset r
     and the column offset c to the current cursor position. *)
+
+val word_count : editor_state -> int
+(** [word_count s] returns the word count of the editor_state s*)
+
+val word_count : editor_state -> int
+(** [word_count s] returns the word count of the editor_state s*)
