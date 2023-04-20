@@ -1,0 +1,3 @@
+open Editor;;
+open Text_editor;;
+let f1 = load_file "hello.txt";;
