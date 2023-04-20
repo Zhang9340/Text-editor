@@ -1,14 +1,9 @@
-(* open Graphics *)
-
 type editor_state = {
   text : string list;
   cursor_pos : int * int;
   selection_start : (int * int) option;
   selection_end : (int * int) option;
 }
-
-(* let create_editor_state () = { text = []; cursor_pos = (0, 0);
-   selection_start = None; selection_end = None; } *)
 
 let get_text state = state.text
 
@@ -59,24 +54,6 @@ let update_in_one_row state s start_pos_r start_pos_c end_pos_c =
   let prefix = String.sub stext 0 start_pos_c in
   let suffix = String.sub stext end_pos_c (String.length stext - end_pos_c) in
   prefix ^ s ^ suffix
-
-(* let update_row state s = match (state.selection_start, state.selection_end)
-   with | Some (start_pos_r, start_pos_c), Some (end_pos_r, end_pos_c) -> if
-   end_pos_r - start_pos_r = 0 then update_in_one_row state s start_pos_r
-   start_pos_c end_pos_c else " " (* TODO: haven't implemented switch line
-   change *) | _ -> failwith "fail to update row"
-
-   (* let print_string_list my_list = let str_list = List.map (fun x -> "\"" ^ x
-   ^ "\"") my_list in let str = String.concat "\n " str_list in "\n[" ^ str ^
-   "\n]" *)
-
-   let update_all_rows state r = match (state.selection_start,
-   state.selection_end) with | Some (start_pos_r, _), Some (end_pos_r, _) -> let
-   prefix = sublist 0 start_pos_r (get_text state) in (* print_string ("Prefix:
-   " ^ print_string_list prefix); *) let suffix = sublist (end_pos_r + 1)
-   (List.length (get_text state) - end_pos_r + 1) (get_text state) in (*
-   print_string ("Suffix: " ^ print_string_list suffix); *) prefix @ [ r ] @
-   suffix | _ -> failwith "fail to update all rows" *)
 
 let update_row state s =
   match (state.selection_start, state.selection_end) with

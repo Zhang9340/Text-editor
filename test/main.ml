@@ -7,6 +7,8 @@ let print_string_list my_list =
   let str = String.concat "\n " str_list in
   "\n[" ^ str ^ "\n]"
 
+(*[print_editor_state] is helper function that transfer editor module into
+  printable stirng*)
 let print_editor_state state =
   let text_str = print_string_list state.text in
   let cursor_pos_str =
@@ -26,9 +28,6 @@ let print_editor_state state =
     "\ntext: %s\n cursor_pos: %s\n selection_start: %s\n selection_end: %s\n"
     text_str cursor_pos_str selection_start_str selection_end_str
 
-(*[print_editor_state] is helper function that transfer editor module into
-  printable stirng*)
-
 (*[replace_str_test] is the helper function to test the replace_str function*)
 let replace_str_test (name : string) (state : editor_state)
     (replace_string : string) (expected_output : editor_state) : test =
@@ -38,26 +37,34 @@ let replace_str_test (name : string) (state : editor_state)
     ~printer:print_editor_state
 
 (*[load_file_test] is the helper function to test the load_file function*)
-
 let load_file_test (name : string) (filename : string)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (load_file filename) ~printer:print_editor_state
 
-let select_text (name : string) (state : editor_state) (sr : int) (sc : int)
-    (er : int) (ec : int) (expected_output : editor_state) : test =
+(*[select_text_test name state sr sc er ec] is the helper function to test the
+  select_text function*)
+let select_text_test (name : string) (state : editor_state) (sr : int)
+    (sc : int) (er : int) (ec : int) (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output
     (select_text state sr sc er ec)
     ~printer:print_editor_state
-(*[select_test name state sr sc er ec] is the helper function to test the
-  load_file function*)
 
+(*[move_cursor_text name state pos expected_output] is the helper function to
+  test the move_cursor function*)
 let move_cursor_text (name : string) (state : editor_state) (pos : int * int)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (move_cursor state pos)
     ~printer:print_editor_state
+
+(*[word_count_test name state expected_output] is the helper function to test
+  the word_count function*)
+let word_count_test (name : string) (state : editor_state)
+    (expected_output : int) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (word_count state) ~printer:string_of_int
 
 let editor_test =
   [
@@ -66,15 +73,15 @@ let editor_test =
         text =
           [
             "Hello world!";
-            "Hello world!Hello world!Hello world!";
+            "Hello world! Hello world! Hello world!";
             "Hello world!";
-            "Hello world!Hello world!";
+            "Hello world! Hello world!";
           ];
         cursor_pos = (0, 0);
         selection_start = None;
         selection_end = None;
       };
-    select_text "Test the select_text function with input 0 ,0 ,0,5"
+    select_text_test "Test the select_text function with input 0 ,0 ,0,5"
       {
         text =
           [
@@ -127,8 +134,7 @@ let editor_test =
         selection_end = None;
       };
     replace_str_test
-      "test the replace_str fucntion by replacing the letter\n\
-      \       with 'replace' "
+      "test the replace_str fucntion by replacing the letter with 'replace' "
       {
         text =
           [
@@ -181,6 +187,77 @@ let editor_test =
         selection_start = Some (1, 30);
         selection_end = Some (1, 35);
       };
+    replace_str_test
+      "test the replace_str fucntion (replacing multiple lines) by replacing \
+       the first line and the first five letters with 'AAAAA' "
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (1, 5);
+      }
+      "AAAAA"
+      {
+        text =
+          [
+            "AAAAA world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (1, 5);
+      };
+    replace_str_test
+      "test the replace_str fucntion (replacing multiple lines) by replacing \
+       the whole file with 'AAAAA' "
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (3, 24);
+      }
+      "AAAAA"
+      {
+        text = [ "AAAAA" ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (3, 24);
+      };
+    word_count_test "Count the number of words in file hello.txt."
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world! Hello world! Hello world!";
+            "Hello world!";
+            "Hello world! Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      14;
+    word_count_test "Count the number of words in an empty file."
+      {
+        text = [];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      0;
   ]
 
 let suite = "test suite for Text_editor" >::: List.flatten [ editor_test ]
