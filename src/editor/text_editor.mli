@@ -23,7 +23,8 @@ val select_text : editor_state -> int -> int -> int -> int -> editor_state
 val replace_str : editor_state -> string -> editor_state
 (** [replace_str s str] returns a new editor_state after replacing the text from
     index selection_start (inclusive) to index selection_end (exclusive) with
-    string str. *)
+    string str. If multiple lines are selected, then replace all the select
+    words with the new string, and merge the multiples lines that are selected. *)
 
 val insert_str : editor_state -> int -> int -> string -> editor_state
 (** [insert_str s r c str] returns a new editor_state after inserting the text
@@ -31,4 +32,4 @@ val insert_str : editor_state -> int -> int -> string -> editor_state
 
 val move_cursor : editor_state -> int * int -> editor_state
 (** [move_cursor s (r c)] changes the cursor position by adding the row offset r
-    and the column offset c to the current cursor position *)
+    and the column offset c to the current cursor position. *)
