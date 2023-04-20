@@ -151,3 +151,24 @@ let move_cursor state (offset_r, offset_c) =
     selection_start = None;
     selection_end = None;
   }
+
+let count_words_from_string (s : string) : int =
+  let is_whitespace ch = ch = ' ' || ch = '\t' || ch = '\n' in
+  let rec count_words_helper i in_word count =
+    if i >= String.length s then if in_word then count + 1 else count
+    else
+      let ch = String.get s i in
+      if is_whitespace ch then
+        if in_word then count_words_helper (i + 1) false (count + 1)
+        else count_words_helper (i + 1) false count
+      else count_words_helper (i + 1) true count
+  in
+  count_words_helper 0 false 0
+
+let word_count (s : editor_state) : int =
+  let rec helper sl =
+    match sl with
+    | [] -> 0
+    | h :: t -> helper t + count_words_from_string h
+  in
+  helper s.text
