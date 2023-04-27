@@ -53,7 +53,7 @@ let select_text_test (name : string) (state : editor_state) (sr : int)
 
 (*[move_cursor_text name state pos expected_output] is the helper function to
   test the move_cursor function*)
-let move_cursor_text (name : string) (state : editor_state) (pos : int * int)
+let move_cursor_test (name : string) (state : editor_state) (pos : int * int)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (move_cursor state pos)
@@ -107,7 +107,7 @@ let editor_test =
         selection_start = Some (0, 0);
         selection_end = Some (0, 5);
       };
-    move_cursor_text "Test the move_cursor function with cursor position (1,3)"
+    move_cursor_test "Test the move_cursor function with cursor position (1,3)"
       {
         text =
           [
@@ -260,5 +260,109 @@ let editor_test =
       0;
   ]
 
-let suite = "test suite for Text_editor" >::: List.flatten [ editor_test ]
+let additional_editor_tests =
+  [
+    (* Test move_cursor with an invalid position *)
+    move_cursor_test "Test move_cursor with invalid position (-1, 3)"
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (-1, 3)
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      };
+    (* Test move_cursor with position beyond the end of the line *)
+    move_cursor_test
+      "Test move_cursor with position beyond the end of the line (0, 20)"
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (0, 20)
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 12);
+        (* Set cursor to end of the line *)
+        selection_start = None;
+        selection_end = None;
+      };
+    (* Test select_text with invalid positions *)
+    select_text_test
+      "Test select_text with invalid positions (-1, 0) and (1, 100)"
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (-1) 0 1 100
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+    (* Test replace_str with no selection replace_str_test "Test replace_str
+       with no selection" { text = [ "Hello world!" ]; cursor_pos = (0, 0);
+       selection_start = None; selection_end = None; } "replace" { text = [
+       "Hello world!" ]; cursor_pos = (0, 0); selection_start = None;
+       selection_end = None; }; *);
+  ]
+
+(*[capitalize_test] is the helper function to test the scapitalize function*)
+let capitalize_test (name : string) (state : editor_state)
+    (expected_output : string list) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (scapitalize state) ~printer:print_string_list
+
+(*[fold_test] is the helper function to test the sfold function*)
+let fold_test (name : string) (state : editor_state)
+    (fold_func : string -> string) (expected_output : string list) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (sfold state fold_func)
+    ~printer:print_string_list
+
+let fold_and_capitalize_tests =
+  [
+    fold_test "Test fold function with sfold"
+      {
+        text = [ "hello world!"; "this is a test"; "goodbye world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      String.uppercase_ascii
+      [ "HELLO WORLD!"; "THIS IS A TEST"; "GOODBYE WORLD!" ];
+    fold_test "Test fold function with reverse function"
+      {
+        text = [ "hello world!"; "this is a test"; "goodbye world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      String.capitalize_ascii
+      [ "Hello world!"; "This is a test"; "Goodbye world!" ];
+    capitalize_test "Test capitalize function on a sample text"
+      {
+        text = [ "hello world!"; "this is a test"; "goodbye world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      [ "HELLO WORLD!"; "THIS IS A TEST"; "GOODBYE WORLD!" ];
+  ]
+
+let suite =
+  "test suite for Text_editor"
+  >::: List.flatten
+         [ editor_test; additional_editor_tests; fold_and_capitalize_tests ]
+
 let _ = run_test_tt_main suite

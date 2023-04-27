@@ -5,6 +5,8 @@ type editor_state = {
   selection_end : (int * int) option;
 }
 
+val create_editor_state : unit -> editor_state
+
 val load_file : string -> editor_state
 (** [load_file f] reads in a .txt file from the current directory with the name
     the same as string f, and show the file as a editor_state. Every line is
@@ -36,3 +38,11 @@ val move_cursor : editor_state -> int * int -> editor_state
 
 val word_count : editor_state -> int
 (** [word_count s] returns the word count of the editor_state s*)
+
+val scapitalize : editor_state -> string list
+(** [capitalize s1] returns a new state s2 with all of its ascii characters
+    capitalized*)
+
+val sfold : editor_state -> (string -> string) -> string list
+(** [fold s f] takes in a state s and a user function (string -> string), and
+    returns a new state with f applied to all of the columns of state s*)

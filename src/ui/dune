@@ -1,0 +1,8 @@
+; (executable
+;  (name ui)
+;  (libraries Editor labltk))
+
+(executable
+ (name ui)
+ (public_name Ui)
+ (libraries ANSITerminal Editor))
