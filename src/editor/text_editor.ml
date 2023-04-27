@@ -5,6 +5,14 @@ type editor_state = {
   selection_end : (int * int) option;
 }
 
+let create_editor_state () =
+  {
+    text = [];
+    cursor_pos = (0, 0);
+    selection_start = None;
+    selection_end = None;
+  }
+
 let get_text state = state.text
 
 let load_file filename =
@@ -114,7 +122,8 @@ let tuple_get_second t =
 let move_cursor state (offset_r, offset_c) =
   let new_pos_r =
     max 0
-      (min (List.length state.text)
+      (min
+         (List.length state.text - 1)
          (tuple_get_first state.cursor_pos + offset_r))
   in
   let new_pos_c =
@@ -147,5 +156,28 @@ let word_count (s : editor_state) : int =
     match sl with
     | [] -> 0
     | h :: t -> helper t + count_words_from_string h
+  in
+  helper s.text
+
+let rec capitalize_line s =
+  let len = String.length s in
+  let capitalized = String.capitalize_ascii s in
+  if len = 0 then ""
+  else
+    String.make 1 capitalized.[0] ^ capitalize_line (String.sub s 1 (len - 1))
+
+let scapitalize (s : editor_state) =
+  let rec helper sl =
+    match sl with
+    | [] -> []
+    | h :: t -> capitalize_line h :: helper t
+  in
+  helper s.text
+
+let sfold (s : editor_state) f : string list =
+  let rec helper sl =
+    match sl with
+    | [] -> []
+    | h :: t -> f h :: helper t
   in
   helper s.text
