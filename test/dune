@@ -1,3 +1,3 @@
 (executable
- (name main1)
+ (name main)
  (libraries Editor ounit2))
