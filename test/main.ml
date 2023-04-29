@@ -66,16 +66,21 @@ let word_count_test (name : string) (state : editor_state)
   name >:: fun _ ->
   assert_equal expected_output (word_count state) ~printer:string_of_int
 
+let delete_test (name : string) (state : editor_state)
+    (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (delete state) ~printer:print_editor_state
+
 let editor_test =
   [
     load_file_test "Test the file is corrected loaded" "hello.txt"
       {
         text =
           [
-            "Hello world!";
-            "Hello world! Hello world! Hello world!";
-            "Hello world!";
-            "Hello world! Hello world!";
+            "Hello world! ";
+            "Hello world! Hello world! Hello world! ";
+            "Hello world! ";
+            "Hello world! Hello world! ";
           ];
         cursor_pos = (0, 0);
         selection_start = None;
@@ -83,7 +88,7 @@ let editor_test =
       };
     load_file_test "Test the file is corrected loaded 2" "hellowithspace.txt"
       {
-        text = [ "Hello"; ""; "hello"; ""; "Hello" ];
+        text = [ "Hello "; " "; "hello "; " "; "Hello " ];
         cursor_pos = (0, 0);
         selection_start = None;
         selection_end = None;
@@ -292,6 +297,19 @@ let editor_test =
         selection_end = None;
       }
       0;
+    delete_test "delete the middle letter"
+      {
+        text = [ "abc" ];
+        cursor_pos = (0, 1);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "bc" ];
+        cursor_pos = (0, 1);
+        selection_start = Some (0, 1);
+        selection_end = Some (0, 1);
+      };
   ]
 
 let additional_editor_tests =

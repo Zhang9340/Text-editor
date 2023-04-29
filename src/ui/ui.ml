@@ -10,10 +10,11 @@ type cmd =
   | LEFT
   | RIGHT
   | DOWN
-  | INSERT
-  | DELTET
+  | INSERT of char
+  | DELETE
   | REPLACE
   | INIT
+  | SAVE of string
 
 (* let string_to_image s = let len = String.length s in let rec loop i img = if
    i < len then let ch = s.[i] in let ch_img = I.uchar (A.fg A.blue)
@@ -77,7 +78,7 @@ let write_int_to_file (filename : string) (tuple : int * int) : unit =
 let helper s = write_int_to_file "output.txt" s.cursor_pos
 
 (* input editor state and direction return new editor state*)
-let move_cursor_cmd (s : editor_state) (dir : cmd) =
+let move_cursor_cmd (dir : cmd) (s : editor_state) =
   match dir with
   | LEFT ->
       helper (move_cursor s (0, -1));
@@ -92,3 +93,18 @@ let move_cursor_cmd (s : editor_state) (dir : cmd) =
       helper (move_cursor s (1, 0));
       move_cursor s (1, 0)
   | _ -> s
+
+let insert_char_cmd (s : editor_state) (c : char) =
+  (* (insert_str s (tuple_get_first s.cursor_pos) (tuple_get_second
+     s.cursor_pos) (String.make 1 c)) *)
+  move_cursor_cmd RIGHT
+    (insert_str (is_last_insert_space s)
+       (tuple_get_first s.cursor_pos)
+       (tuple_get_second s.cursor_pos)
+       (String.make 1 c))
+
+let delete_char_cmd (s : editor_state) = delete s
+
+let save_file_cmd (s : editor_state) (name : string) =
+  save_file s name;
+  s

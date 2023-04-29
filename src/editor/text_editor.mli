@@ -44,5 +44,12 @@ val scapitalize : editor_state -> string list
     capitalized*)
 
 val sfold : editor_state -> (string -> string) -> string list
+
+(** [fold s f] takes in a state s and a user function (string -> string), and
+    returns a new state with f applied to all of the columns of state s*)
+
+val is_last_insert_space : editor_state -> editor_state
+
+val delete : editor_state -> editor_state
 (** [fold s f] takes in a state s and a user function (string -> string), and
     returns a new state with f applied to all of the columns of state s*)

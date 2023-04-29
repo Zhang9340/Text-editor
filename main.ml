@@ -32,7 +32,10 @@ let rec update t (s : editor_state) (command : cmd) =
   let newstate =
     match command with
     | INIT -> s
-    | LEFT | RIGHT | UP | DOWN -> move_cursor_cmd s command
+    | LEFT | RIGHT | UP | DOWN -> move_cursor_cmd command s
+    | INSERT c -> insert_char_cmd s c
+    | DELETE -> delete_char_cmd s
+    | SAVE name -> save_file_cmd s name
     | _ -> failwith "not implemented"
   in
   let newimg = Ui.convert_state newstate in
@@ -41,11 +44,14 @@ let rec update t (s : editor_state) (command : cmd) =
 
 and loop t (s : editor_state) img =
   match Term.event t with
-  | `Key (`Enter, _) -> ()
+  | `Key (`Enter, _) -> update t s (SAVE "test.txt")
   | `Key (`Arrow `Left, _) -> update t s LEFT
   | `Key (`Arrow `Right, _) -> update t s RIGHT
   | `Key (`Arrow `Up, _) -> update t s UP
   | `Key (`Arrow `Down, _) -> update t s DOWN
+  | `Key (`ASCII chr, _) -> update t s (INSERT chr)
+  | `Key (`Backspace, _) -> update t s DELETE
+  | `Key (`Escape, _) -> ()
   | _ -> loop t s img
 
 let t = Term.create ()
