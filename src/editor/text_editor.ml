@@ -19,7 +19,7 @@ let load_file filename =
   let chan = open_in filename in
   let rec loop acc =
     try
-      let line = input_line chan in
+      let line = input_line chan ^ " " in
       loop (line :: acc)
     with End_of_file ->
       close_in chan;
@@ -57,12 +57,14 @@ let rec sublist b e l =
       (* Combine the head and tail to form the final result *)
       head @ tail
 
+(*for replace*)
 let update_in_one_row state s start_pos_r start_pos_c end_pos_c =
   let stext = List.nth (get_text state) start_pos_r in
   let prefix = String.sub stext 0 start_pos_c in
   let suffix = String.sub stext end_pos_c (String.length stext - end_pos_c) in
   prefix ^ s ^ suffix
 
+(*for replace*)
 let update_row state s =
   match (state.selection_start, state.selection_end) with
   | Some (start_pos_r, start_pos_c), Some (end_pos_r, end_pos_c) ->
@@ -78,6 +80,7 @@ let update_row state s =
         prefix ^ s ^ suffix
   | _ -> failwith "fail to update row"
 
+(*for replace*)
 let update_all_rows state r =
   match (state.selection_start, state.selection_end) with
   | Some (start_pos_r, _), Some (end_pos_r, _) ->
@@ -96,20 +99,10 @@ let option_tuple_get_int t =
   | Some (a, b) -> (a, b)
   | _ -> failwith "internal error"
 
-let select_text state start_pos_r start_pos_c end_pos_r end_pos_c =
-  {
-    state with
-    selection_start = Some (start_pos_r, start_pos_c);
-    selection_end = Some (end_pos_r, end_pos_c);
-  }
-
-let replace_str state s =
-  let text = s |> update_row state |> update_all_rows state in
-  { state with text; cursor_pos = option_tuple_get_int state.selection_start }
-
-let insert_str state pos_r pos_c s =
-  let file = select_text state pos_r pos_c pos_r pos_c in
-  replace_str file s
+let rec get_nth_elm (slist : string list) (pos : int) =
+  match slist with
+  | [] -> failwith "empty list"
+  | h :: t -> if pos = 0 then h else get_nth_elm t (pos - 1)
 
 let tuple_get_first t =
   match t with
@@ -119,7 +112,40 @@ let tuple_get_second t =
   match t with
   | _, c -> c
 
+let select_text state start_pos_r start_pos_c end_pos_r end_pos_c =
+  let start_r = max 0 (min (List.length state.text - 1) start_pos_r) in
+  let start_c =
+    max 0 (min (String.length (get_nth_elm state.text start_r) - 1) start_pos_c)
+  in
+  let end_r = max 0 (min (List.length state.text - 1) end_pos_r) in
+  let end_c =
+    max 0 (min (String.length (get_nth_elm state.text end_r) - 1) end_pos_c)
+  in
+  {
+    state with
+    selection_start = Some (start_r, start_c);
+    selection_end = Some (end_r, end_c);
+  }
+
+let replace_str state s =
+  let text = s |> update_row state |> update_all_rows state in
+  { state with text; cursor_pos = option_tuple_get_int state.selection_start }
+
+let delete s =
+  let cur_pos = s.cursor_pos in
+  let new_s =
+    select_text s (tuple_get_first cur_pos)
+      (tuple_get_second cur_pos - 1)
+      (tuple_get_first cur_pos) (tuple_get_second cur_pos)
+  in
+  replace_str new_s ""
+
+let insert_str state pos_r pos_c s =
+  let file = select_text state pos_r pos_c pos_r pos_c in
+  replace_str file s
+
 let move_cursor state (offset_r, offset_c) =
+  (* let cur_r = tuple_get_first state.cursor_pos + offset_r in *)
   let new_pos_r =
     max 0
       (min
@@ -128,7 +154,8 @@ let move_cursor state (offset_r, offset_c) =
   in
   let new_pos_c =
     max 0
-      (min (List.length state.text)
+      (min
+         (String.length (get_nth_elm state.text new_pos_r) - 1)
          (tuple_get_second state.cursor_pos + offset_c))
   in
   {
@@ -181,3 +208,14 @@ let sfold (s : editor_state) f : string list =
     | h :: t -> f h :: helper t
   in
   helper s.text
+
+let is_last_insert_space (s : editor_state) =
+  let curs_row = tuple_get_first s.cursor_pos in
+  let curs_col = tuple_get_second s.cursor_pos in
+  let selectedrow = get_nth_elm s.text curs_row in
+  if String.length selectedrow <= curs_col then
+    insert_str s
+      (tuple_get_first s.cursor_pos)
+      (tuple_get_second s.cursor_pos + 1)
+      (String.make 1 ' ')
+  else s

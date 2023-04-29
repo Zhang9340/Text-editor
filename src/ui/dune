@@ -2,7 +2,7 @@
 ;  (name ui)
 ;  (libraries Editor labltk))
 
-(executable
+(library
  (name ui)
  (public_name Ui)
- (libraries ANSITerminal Editor))
+ (libraries notty notty.unix Editor))

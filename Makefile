@@ -15,7 +15,7 @@ test:
 	OCAMLRUNPARAM=b dune exec test/main.exe
 
 play:
-	OCAMLRUNPARAM=b dune exec bin/main.exe
+	OCAMLRUNPARAM=b dune exec ./main.exe
 
 check:
 	@bash check.sh
@@ -36,3 +36,6 @@ doc:
 
 opendoc: doc
 	@bash opendoc.sh
+
+count:
+	cloc --by-file --include-lang=OCaml .

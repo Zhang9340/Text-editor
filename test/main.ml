@@ -66,17 +66,29 @@ let word_count_test (name : string) (state : editor_state)
   name >:: fun _ ->
   assert_equal expected_output (word_count state) ~printer:string_of_int
 
+let delete_test (name : string) (state : editor_state)
+    (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (delete state) ~printer:print_editor_state
+
 let editor_test =
   [
     load_file_test "Test the file is corrected loaded" "hello.txt"
       {
         text =
           [
-            "Hello world!";
-            "Hello world! Hello world! Hello world!";
-            "Hello world!";
-            "Hello world! Hello world!";
+            "Hello world! ";
+            "Hello world! Hello world! Hello world! ";
+            "Hello world! ";
+            "Hello world! Hello world! ";
           ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      };
+    load_file_test "Test the file is corrected loaded 2" "hellowithspace.txt"
+      {
+        text = [ "Hello "; " "; "hello "; " "; "Hello " ];
         cursor_pos = (0, 0);
         selection_start = None;
         selection_end = None;
@@ -130,6 +142,33 @@ let editor_test =
             "Hello world!Hello world!";
           ];
         cursor_pos = (1, 3);
+        selection_start = None;
+        selection_end = None;
+      };
+    move_cursor_test
+      "Test the move_cursor function with cursor position (-1,20)"
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (-1, 20)
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 11);
         selection_start = None;
         selection_end = None;
       };
@@ -258,6 +297,19 @@ let editor_test =
         selection_end = None;
       }
       0;
+    delete_test "delete the middle letter"
+      {
+        text = [ "abc" ];
+        cursor_pos = (0, 1);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "bc" ];
+        cursor_pos = (0, 1);
+        selection_start = Some (0, 1);
+        selection_end = Some (0, 1);
+      };
   ]
 
 let additional_editor_tests =
@@ -273,7 +325,7 @@ let additional_editor_tests =
       (-1, 3)
       {
         text = [ "Hello world!" ];
-        cursor_pos = (0, 0);
+        cursor_pos = (0, 3);
         selection_start = None;
         selection_end = None;
       };
@@ -289,7 +341,7 @@ let additional_editor_tests =
       (0, 20)
       {
         text = [ "Hello world!" ];
-        cursor_pos = (0, 12);
+        cursor_pos = (0, 11);
         (* Set cursor to end of the line *)
         selection_start = None;
         selection_end = None;
@@ -307,8 +359,8 @@ let additional_editor_tests =
       {
         text = [ "Hello world!" ];
         cursor_pos = (0, 0);
-        selection_start = None;
-        selection_end = None;
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 11);
       }
     (* Test replace_str with no selection replace_str_test "Test replace_str
        with no selection" { text = [ "Hello world!" ]; cursor_pos = (0, 0);
