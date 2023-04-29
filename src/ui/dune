@@ -5,4 +5,4 @@
 (library
  (name ui)
  (public_name Ui)
- (libraries notty notty.unix))
+ (libraries notty notty.unix Editor))

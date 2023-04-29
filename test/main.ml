@@ -81,6 +81,13 @@ let editor_test =
         selection_start = None;
         selection_end = None;
       };
+    load_file_test "Test the file is corrected loaded 2" "hellowithspace.txt"
+      {
+        text = [ "Hello"; ""; "hello"; ""; "Hello" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      };
     select_text_test "Test the select_text function with input 0 ,0 ,0,5"
       {
         text =
@@ -130,6 +137,33 @@ let editor_test =
             "Hello world!Hello world!";
           ];
         cursor_pos = (1, 3);
+        selection_start = None;
+        selection_end = None;
+      };
+    move_cursor_test
+      "Test the move_cursor function with cursor position (-1,20)"
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (-1, 20)
+      {
+        text =
+          [
+            "Hello world!";
+            "Hello world!Hello world!Hello world!";
+            "Hello world!";
+            "Hello world!Hello world!";
+          ];
+        cursor_pos = (0, 11);
         selection_start = None;
         selection_end = None;
       };
@@ -273,7 +307,7 @@ let additional_editor_tests =
       (-1, 3)
       {
         text = [ "Hello world!" ];
-        cursor_pos = (0, 0);
+        cursor_pos = (0, 3);
         selection_start = None;
         selection_end = None;
       };
@@ -289,7 +323,7 @@ let additional_editor_tests =
       (0, 20)
       {
         text = [ "Hello world!" ];
-        cursor_pos = (0, 12);
+        cursor_pos = (0, 11);
         (* Set cursor to end of the line *)
         selection_start = None;
         selection_end = None;
@@ -307,8 +341,8 @@ let additional_editor_tests =
       {
         text = [ "Hello world!" ];
         cursor_pos = (0, 0);
-        selection_start = None;
-        selection_end = None;
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 11);
       }
     (* Test replace_str with no selection replace_str_test "Test replace_str
        with no selection" { text = [ "Hello world!" ]; cursor_pos = (0, 0);

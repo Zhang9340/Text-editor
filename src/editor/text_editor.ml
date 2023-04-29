@@ -96,11 +96,32 @@ let option_tuple_get_int t =
   | Some (a, b) -> (a, b)
   | _ -> failwith "internal error"
 
+let rec get_nth_elm (slist : string list) (pos : int) =
+  match slist with
+  | [] -> failwith "empty list"
+  | h :: t -> if pos = 0 then h else get_nth_elm t (pos - 1)
+
+let tuple_get_first t =
+  match t with
+  | r, _ -> r
+
+let tuple_get_second t =
+  match t with
+  | _, c -> c
+
 let select_text state start_pos_r start_pos_c end_pos_r end_pos_c =
+  let start_r = max 0 (min (List.length state.text - 1) start_pos_r) in
+  let start_c =
+    max 0 (min (String.length (get_nth_elm state.text start_r) - 1) start_pos_c)
+  in
+  let end_r = max 0 (min (List.length state.text - 1) end_pos_r) in
+  let end_c =
+    max 0 (min (String.length (get_nth_elm state.text end_r) - 1) end_pos_c)
+  in
   {
     state with
-    selection_start = Some (start_pos_r, start_pos_c);
-    selection_end = Some (end_pos_r, end_pos_c);
+    selection_start = Some (start_r, start_c);
+    selection_end = Some (end_r, end_c);
   }
 
 let replace_str state s =
@@ -111,15 +132,8 @@ let insert_str state pos_r pos_c s =
   let file = select_text state pos_r pos_c pos_r pos_c in
   replace_str file s
 
-let tuple_get_first t =
-  match t with
-  | r, _ -> r
-
-let tuple_get_second t =
-  match t with
-  | _, c -> c
-
 let move_cursor state (offset_r, offset_c) =
+  (* let cur_r = tuple_get_first state.cursor_pos + offset_r in *)
   let new_pos_r =
     max 0
       (min
@@ -128,7 +142,8 @@ let move_cursor state (offset_r, offset_c) =
   in
   let new_pos_c =
     max 0
-      (min (List.length state.text)
+      (min
+         (String.length (get_nth_elm state.text new_pos_r) - 1)
          (tuple_get_second state.cursor_pos + offset_c))
   in
   {

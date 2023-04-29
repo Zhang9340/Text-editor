@@ -36,3 +36,6 @@ doc:
 
 opendoc: doc
 	@bash opendoc.sh
+
+count:
+	cloc --by-file --include-lang=OCaml .
