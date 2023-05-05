@@ -57,16 +57,32 @@ let convert_state (s : editor_state) =
       loop 0 I.empty
   in
 
-  let rec convert (c : string list) (inc : int) =
+  let cursor_row = tuple_get_first s.cursor_pos in
+
+  let display_range =
+    let text_len = List.length s.text in
+    let left = cursor_row / 40 * 40 in
+    let right = if left + 40 > text_len then text_len else left + 40 in
+    let newleft = left - 2 in
+    let newright = right + 2 in
+    (newleft, newright)
+  in
+
+  let rec convert (c : string list) (inc : int) acc =
     match c with
     | [] -> I.empty
     | h :: t ->
-        if inc = tuple_get_first s.cursor_pos then
-          I.(string_to_image h true <-> convert t (inc + 1))
-        else I.(string_to_image h false <-> convert t (inc + 1))
+        let left = tuple_get_first display_range in
+        let right = tuple_get_second display_range in
+        if inc < left then convert t (inc + 1) acc
+        else if inc > right then acc
+        else if inc = cursor_row then
+          convert t (inc + 1) I.(acc <-> string_to_image h true)
+          (* else I.(string_to_image h false <-> convert t (inc + 1) acc) *)
+        else convert t (inc + 1) I.(acc <-> string_to_image h false)
   in
 
-  convert s.text 0
+  convert s.text 0 I.empty
 
 let write_int_to_file (filename : string) (tuple : int * int) : unit =
   let oc = open_out filename in
