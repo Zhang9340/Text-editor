@@ -16,6 +16,10 @@ val save_file : editor_state -> string -> unit
 (** [save_file s f] saves the current editor_state s as a new file with the name
     the same as string f in the current directory. *)
 
+val get_nth_elm : string list -> int -> string
+(** [get_nth_elm s pos] get the number [pos]th element, which is a string, in
+    the editor_state [s].*)
+
 val select_text : editor_state -> int -> int -> int -> int -> editor_state
 (** [select_text s sr sc er ec] selects text in editor_state from "row start
     position" sr and "column start position" sc (inclusive), to "row end
@@ -53,3 +57,6 @@ val is_last_insert_space : editor_state -> editor_state
 val delete : editor_state -> editor_state
 (** [fold s f] takes in a state s and a user function (string -> string), and
     returns a new state with f applied to all of the columns of state s*)
+
+val delete_selection : editor_state -> editor_state
+val update_in_one_row : editor_state -> string -> int -> int -> int -> string

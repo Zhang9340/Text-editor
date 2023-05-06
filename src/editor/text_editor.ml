@@ -88,7 +88,7 @@ let update_all_rows state r =
       (* let middle = sublist (start_pos_r + 1) end_pos_r (get_text state) in *)
       let suffix =
         sublist (end_pos_r + 1)
-          (List.length (get_text state) - end_pos_r + 1)
+          (end_pos_r + (List.length (get_text state) - end_pos_r + 1) - 1)
           (get_text state)
       in
       prefix @ [ r ] @ suffix
@@ -137,6 +137,22 @@ let delete s =
     select_text s (tuple_get_first cur_pos)
       (tuple_get_second cur_pos - 1)
       (tuple_get_first cur_pos) (tuple_get_second cur_pos)
+  in
+  replace_str new_s ""
+(* let cur_pos = s.cursor_pos in match cur_pos with | _, 0 -> s | _ -> let
+   cur_pos = s.cursor_pos in let new_s = select_text s (tuple_get_first cur_pos)
+   (tuple_get_second cur_pos - 1) (tuple_get_first cur_pos) (tuple_get_second
+   cur_pos) in replace_str new_s "" *)
+
+let delete_selection s =
+  let select_start = Option.get s.selection_start in
+  let select_end = Option.get s.selection_end in
+  let new_s =
+    select_text s
+      (tuple_get_first select_start)
+      (tuple_get_second select_start)
+      (tuple_get_first select_end)
+      (tuple_get_second select_end)
   in
   replace_str new_s ""
 

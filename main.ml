@@ -36,6 +36,7 @@ let rec update t (s : editor_state) (command : cmd) =
     | INSERT c -> insert_char_cmd s c
     | DELETE -> delete_char_cmd s
     | SAVE name -> save_file_cmd s name
+    | MousePressLeft (x, y) -> move_cursor_cmd (MousePressLeft (x, y)) s
     | _ -> failwith "not implemented"
   in
   let newimg = Ui.convert_state newstate in
@@ -52,6 +53,7 @@ and loop t (s : editor_state) img =
   | `Key (`ASCII chr, _) -> update t s (INSERT chr)
   | `Key (`Backspace, _) -> update t s DELETE
   | `Key (`Escape, _) -> ()
+  | `Mouse (`Press `Left, (x, y), _) -> update t s (MousePressLeft (x, y))
   | _ -> loop t s img
 
 let t = Term.create ()
