@@ -131,6 +131,10 @@ let replace_str state s =
   let text = s |> update_row state |> update_all_rows state in
   { state with text; cursor_pos = option_tuple_get_int state.selection_start }
 
+let insert_str state pos_r pos_c s =
+  let file = select_text state pos_r pos_c pos_r pos_c in
+  replace_str file s
+
 let delete s =
   let cur_pos = s.cursor_pos in
   let new_s =
@@ -139,10 +143,6 @@ let delete s =
       (tuple_get_first cur_pos) (tuple_get_second cur_pos)
   in
   replace_str new_s ""
-(* let cur_pos = s.cursor_pos in match cur_pos with | _, 0 -> s | _ -> let
-   cur_pos = s.cursor_pos in let new_s = select_text s (tuple_get_first cur_pos)
-   (tuple_get_second cur_pos - 1) (tuple_get_first cur_pos) (tuple_get_second
-   cur_pos) in replace_str new_s "" *)
 
 let delete_selection s =
   let select_start = Option.get s.selection_start in
@@ -155,10 +155,6 @@ let delete_selection s =
       (tuple_get_second select_end)
   in
   replace_str new_s ""
-
-let insert_str state pos_r pos_c s =
-  let file = select_text state pos_r pos_c pos_r pos_c in
-  replace_str file s
 
 let move_cursor state (offset_r, offset_c) =
   (* let cur_r = tuple_get_first state.cursor_pos + offset_r in *)
@@ -209,7 +205,7 @@ let rec capitalize_line s =
   else
     String.make 1 capitalized.[0] ^ capitalize_line (String.sub s 1 (len - 1))
 
-let scapitalize (s : editor_state) =
+let capitalize (s : editor_state) =
   let rec helper sl =
     match sl with
     | [] -> []
@@ -217,7 +213,7 @@ let scapitalize (s : editor_state) =
   in
   helper s.text
 
-let sfold (s : editor_state) f : string list =
+let fold (s : editor_state) f : string list =
   let rec helper sl =
     match sl with
     | [] -> []

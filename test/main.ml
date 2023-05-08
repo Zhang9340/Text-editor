@@ -2,13 +2,15 @@ open OUnit2
 open Editor
 open Text_editor
 
+(** [print_editor_state] is helper function that transfer a string list into
+    printable stirng *)
 let print_string_list my_list =
   let str_list = List.map (fun x -> "\"" ^ x ^ "\"") my_list in
   let str = String.concat "\n " str_list in
   "\n[" ^ str ^ "\n]"
 
-(*[print_editor_state] is helper function that transfer editor module into
-  printable stirng*)
+(** [print_editor_state] is helper function that transfer editor module into
+    printable stirng *)
 let print_editor_state state =
   let text_str = print_string_list state.text in
   let cursor_pos_str =
@@ -28,7 +30,7 @@ let print_editor_state state =
     "\ntext: %s\n cursor_pos: %s\n selection_start: %s\n selection_end: %s\n"
     text_str cursor_pos_str selection_start_str selection_end_str
 
-(*[replace_str_test] is the helper function to test the replace_str function*)
+(** [replace_str_test] is the helper function to test the replace_str function *)
 let replace_str_test (name : string) (state : editor_state)
     (replace_string : string) (expected_output : editor_state) : test =
   name >:: fun _ ->
@@ -36,14 +38,14 @@ let replace_str_test (name : string) (state : editor_state)
     (replace_str state replace_string)
     ~printer:print_editor_state
 
-(*[load_file_test] is the helper function to test the load_file function*)
+(** [load_file_test] is the helper function to test the load_file function *)
 let load_file_test (name : string) (filename : string)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (load_file filename) ~printer:print_editor_state
 
-(*[select_text_test name state sr sc er ec] is the helper function to test the
-  select_text function*)
+(** [select_text_test name state sr sc er ec] is the helper function to test the
+    select_text function *)
 let select_text_test (name : string) (state : editor_state) (sr : int)
     (sc : int) (er : int) (ec : int) (expected_output : editor_state) : test =
   name >:: fun _ ->
@@ -51,26 +53,30 @@ let select_text_test (name : string) (state : editor_state) (sr : int)
     (select_text state sr sc er ec)
     ~printer:print_editor_state
 
-(*[move_cursor_text name state pos expected_output] is the helper function to
-  test the move_cursor function*)
+(** [move_cursor_text name state pos expected_output] is the helper function to
+    test the move_cursor function *)
 let move_cursor_test (name : string) (state : editor_state) (pos : int * int)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (move_cursor state pos)
     ~printer:print_editor_state
 
-(*[word_count_test name state expected_output] is the helper function to test
-  the word_count function*)
+(** [word_count_test name state expected_output] is the helper function to test
+    the word_count function *)
 let word_count_test (name : string) (state : editor_state)
     (expected_output : int) : test =
   name >:: fun _ ->
   assert_equal expected_output (word_count state) ~printer:string_of_int
 
+(** [delete_test name state expected_output] is the helper function to test the
+    delete function *)
 let delete_test (name : string) (state : editor_state)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
   assert_equal expected_output (delete state) ~printer:print_editor_state
 
+(** [update_in_one_row_test name state s start_pos_r start_pos_c end_pos_c expected_output]
+    is the helper function to test the update_in_one_row function *)
 let update_in_one_row_test (name : string) (state : editor_state) (s : string)
     (start_pos_r : int) (start_pos_c : int) (end_pos_c : int)
     (expected_output : string) : test =
@@ -445,14 +451,13 @@ let additional_editor_tests =
 let capitalize_test (name : string) (state : editor_state)
     (expected_output : string list) : test =
   name >:: fun _ ->
-  assert_equal expected_output (scapitalize state) ~printer:print_string_list
+  assert_equal expected_output (capitalize state) ~printer:print_string_list
 
 (*[fold_test] is the helper function to test the sfold function*)
 let fold_test (name : string) (state : editor_state)
     (fold_func : string -> string) (expected_output : string list) : test =
   name >:: fun _ ->
-  assert_equal expected_output (sfold state fold_func)
-    ~printer:print_string_list
+  assert_equal expected_output (fold state fold_func) ~printer:print_string_list
 
 let fold_and_capitalize_tests =
   [
