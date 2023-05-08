@@ -71,6 +71,14 @@ let delete_test (name : string) (state : editor_state)
   name >:: fun _ ->
   assert_equal expected_output (delete state) ~printer:print_editor_state
 
+let update_in_one_row_test (name : string) (state : editor_state) (s : string)
+    (start_pos_r : int) (start_pos_c : int) (end_pos_c : int)
+    (expected_output : string) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (update_in_one_row state s start_pos_r start_pos_c end_pos_c)
+    ~printer:(fun x -> x)
+
 let editor_test =
   [
     load_file_test "Test the file is corrected loaded" "hello.txt"
@@ -93,7 +101,15 @@ let editor_test =
         selection_start = None;
         selection_end = None;
       };
-    select_text_test "Test the select_text function with input 0 ,0 ,0,5"
+    update_in_one_row_test "update the middle letter"
+      {
+        text = [ "ABC" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      "E" 0 1 1 "AEC";
+    select_text_test "Test the select_text function with input 0, 0, 0, 5"
       {
         text =
           [
@@ -118,6 +134,35 @@ let editor_test =
         cursor_pos = (0, 0);
         selection_start = Some (0, 0);
         selection_end = Some (0, 5);
+      };
+    select_text_test
+      "Test select_text with invalid positions (-1, 0) and (1, 100)"
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      (-1) 0 1 100
+      {
+        text = [ "Hello world!" ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 11);
+      };
+    select_text_test "Test select_text with first position of the third line"
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      3 (-1) 3 0
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (0, 0);
+        selection_start = Some (3, 0);
+        selection_end = Some (3, 0);
       };
     move_cursor_test "Test the move_cursor function with cursor position (1,3)"
       {
@@ -306,9 +351,50 @@ let editor_test =
       }
       {
         text = [ "bc" ];
-        cursor_pos = (0, 1);
-        selection_start = Some (0, 1);
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
         selection_end = Some (0, 1);
+      };
+    delete_test "delete the first letter of the second to last line"
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (3, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "jkl"; "5mno" ];
+        cursor_pos = (3, 0);
+        selection_start = Some (3, 0);
+        selection_end = Some (3, 0);
+      };
+    delete_test "delete the first letter of the third to last line"
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (2, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "jkl"; "5mno" ];
+        cursor_pos = (2, 0);
+        selection_start = Some (2, 0);
+        selection_end = Some (2, 0);
+      };
+    delete_test "delete the first letter of the third to last line (8 elements)"
+      {
+        text =
+          [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno"; "6pqr"; "7stu"; "8vwm" ];
+        cursor_pos = (4, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text =
+          [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno"; "6pqr"; "7stu"; "8vwm" ];
+        cursor_pos = (4, 0);
+        selection_start = Some (4, 0);
+        selection_end = Some (4, 0);
       };
   ]
 
@@ -345,23 +431,9 @@ let additional_editor_tests =
         (* Set cursor to end of the line *)
         selection_start = None;
         selection_end = None;
-      };
+      }
     (* Test select_text with invalid positions *)
-    select_text_test
-      "Test select_text with invalid positions (-1, 0) and (1, 100)"
-      {
-        text = [ "Hello world!" ];
-        cursor_pos = (0, 0);
-        selection_start = None;
-        selection_end = None;
-      }
-      (-1) 0 1 100
-      {
-        text = [ "Hello world!" ];
-        cursor_pos = (0, 0);
-        selection_start = Some (0, 0);
-        selection_end = Some (0, 11);
-      }
+
     (* Test replace_str with no selection replace_str_test "Test replace_str
        with no selection" { text = [ "Hello world!" ]; cursor_pos = (0, 0);
        selection_start = None; selection_end = None; } "replace" { text = [
@@ -412,9 +484,77 @@ let fold_and_capitalize_tests =
       [ "HELLO WORLD!"; "THIS IS A TEST"; "GOODBYE WORLD!" ];
   ]
 
+let is_last_insert_space_test (name : string) (state : editor_state)
+    (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (is_last_insert_space state)
+    ~printer:print_editor_state
+
+let is_last_insert_space_tests =
+  [
+    is_last_insert_space_test "test_single_line_begining"
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 1);
+        selection_start = None;
+        selection_end = None;
+      };
+    is_last_insert_space_test "test_single_line_end"
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 5);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "hello " ];
+        cursor_pos = (0, 6);
+        selection_start = None;
+        selection_end = None;
+      };
+    is_last_insert_space_test "test_multiple_lines_beginning"
+      {
+        text = [ "hello"; "world" ];
+        cursor_pos = (1, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "hello"; "world" ];
+        cursor_pos = (1, 1);
+        selection_start = None;
+        selection_end = None;
+      };
+    is_last_insert_space_test "test_multiple_lines_end"
+      {
+        text = [ "hello"; "world" ];
+        cursor_pos = (0, 5);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "hello "; "world" ];
+        cursor_pos = (0, 6);
+        selection_start = Some (0, 1);
+        selection_end = Some (0, 1);
+      };
+  ]
+
 let suite =
   "test suite for Text_editor"
   >::: List.flatten
-         [ editor_test; additional_editor_tests; fold_and_capitalize_tests ]
+         [
+           editor_test;
+           additional_editor_tests;
+           fold_and_capitalize_tests;
+           is_last_insert_space_tests;
+         ]
 
 let _ = run_test_tt_main suite
