@@ -593,6 +593,32 @@ let edit_text_test =
         selection_start = Some (4, 0);
         selection_end = Some (4, 0);
       };
+    delete_test "delete when cursor at the very beginning"
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 0);
+      };
+    delete_test "delete invalid"
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (-1, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (0, 0);
+        selection_start = Some (0, 0);
+        selection_end = Some (0, 0);
+      };
   ]
 
 (** [word_count_test name state expected_output] is the helper function to test
@@ -714,6 +740,20 @@ let is_last_insert_space_tests =
       {
         text = [ "hello " ];
         cursor_pos = (0, 6);
+        selection_start = Some (0, 6);
+        selection_end = Some (0, 6);
+      };
+    is_last_insert_space_test
+      "not able to insert since it's not the last position"
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 4);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 4);
         selection_start = None;
         selection_end = None;
       };
@@ -727,8 +767,8 @@ let is_last_insert_space_tests =
       {
         text = [ "hello"; "world " ];
         cursor_pos = (1, 6);
-        selection_start = None;
-        selection_end = None;
+        selection_start = Some (1, 6);
+        selection_end = Some (1, 6);
       };
   ]
 
