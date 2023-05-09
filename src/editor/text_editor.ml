@@ -41,8 +41,7 @@ let save_file state filename =
   List.iter (fun line -> output_string chan (line ^ "\n")) (get_text state);
   close_out chan
 
-(* [sublist begin end list] get the sublist from begin (inclusive) to end
-   (exclusive) *)
+
 let rec sublist b e l =
   match l with
   | [] -> []
@@ -85,7 +84,6 @@ let update_all_rows state r =
   match (state.selection_start, state.selection_end) with
   | Some (start_pos_r, _), Some (end_pos_r, _) ->
       let prefix = sublist 0 start_pos_r (get_text state) in
-      (* let middle = sublist (start_pos_r + 1) end_pos_r (get_text state) in *)
       let suffix =
         sublist (end_pos_r + 1)
           (end_pos_r + (List.length (get_text state) - end_pos_r + 1) - 1)

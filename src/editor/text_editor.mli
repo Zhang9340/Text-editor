@@ -24,6 +24,26 @@ val save_file : editor_state -> string -> unit
 (** [save_file s f] saves the current editor_state s as a new file with the name
     the same as string f in the current directory. *)
 
+val sublist : int -> int -> 'a list -> 'a list
+(* [sublist begin end list] get the sublist from begin (inclusive) to end
+   (exclusive) *)
+
+val update_in_one_row : editor_state -> string -> int -> int -> int -> string
+(** [update_in_one_row state s start_pos_r start_pos_c end_pos_c] updates one
+    line, with the start position of selection and end position of selection in
+    the same row. *)
+
+val update_row : editor_state -> string -> string
+(** [update_row state s] updates the text in the given state based on the
+    selected portion. If the start and end of the selection are in the same row,
+    it uses the helper function update_in_one_row to update the text. If they
+    are in different rows, it extracts the prefix from the start row and the
+    suffix from the end row and concatenates these with the new string.*)
+
+val update_all_rows : editor_state -> string -> string list
+(** [update_row state s] updates the text in the given state by replacing the
+    text in the rows between the selection start and end with a single new row. *)
+
 val get_nth_elm : string list -> int -> string
 (** [get_nth_elm s pos] get the number [pos]th element, which is a string, in
     the editor_state [s].*)
@@ -74,5 +94,3 @@ val fold : editor_state -> (string -> string) -> string list
 val is_last_insert_space : editor_state -> editor_state
 (** [is_last_insert_space s] takes in an editor_state s and return a new
     editor_state with a space appended to the end of every line. *)
-
-val update_in_one_row : editor_state -> string -> int -> int -> int -> string
