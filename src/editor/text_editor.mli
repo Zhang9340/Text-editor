@@ -94,3 +94,10 @@ val fold : editor_state -> (string -> string) -> string list
 val is_last_insert_space : editor_state -> editor_state
 (** [is_last_insert_space s] takes in an editor_state s and return a new
     editor_state with a space appended to the end of every line. *)
+
+val convert_selection_to_string_list : editor_state -> string list
+(** [convert_selection_to_string s] converts the selected string into string
+    list based on selection start and selection end *)
+
+val insert_newline : editor_state -> editor_state
+(** [insert_newline s] takes a editor state and add a new line at cursor pos*)

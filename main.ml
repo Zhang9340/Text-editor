@@ -1,19 +1,7 @@
-(* let _ = Ui.test *)
-(* open Notty *)
 open Notty_unix
 open Editor
 open Text_editor
 open Ui
-(* let square = "\xe2\x96\xaa" *)
-(* let example = [ "please input file name:" ] *)
-
-(* let rec sierp n = if n > 1 then let ss = sierp (pred n) in I.(ss <-> (ss <|>
-   ss)) else I.(string A.(fg magenta) square |> hpad 1 0) *)
-
-(* let img (double, n) = let s = sierp n in if double then I.(s </> vpad 1 0 s)
-   else s *)
-
-(*welcome page*)
 
 let data_dir_prefix = "data" ^ Filename.dir_sep
 
@@ -37,6 +25,9 @@ let rec update t (s : editor_state) (command : cmd) =
     | DELETE -> delete_char_cmd s
     | SAVE name -> save_file_cmd s name
     | MousePressLeft (x, y) -> move_cursor_cmd (MousePressLeft (x, y)) s
+    | PASTE -> paste_string_cmd s
+    | NEWLINE -> newline_cmd s
+    | COPY -> copy_string_cmd s
     | _ -> failwith "not implemented"
   in
   let newimg = Ui.convert_state newstate in
@@ -45,14 +36,18 @@ let rec update t (s : editor_state) (command : cmd) =
 
 and loop t (s : editor_state) img =
   match Term.event t with
-  | `Key (`Enter, _) -> update t s (SAVE "test.txt")
+  | `Key (`ASCII 'P', [ `Ctrl ]) -> update t s PASTE
+  | `Key (`ASCII 'C', [ `Ctrl ]) -> update t s COPY
+  | `Key (`Enter, _) -> update t s NEWLINE
   | `Key (`Arrow `Left, _) -> update t s LEFT
   | `Key (`Arrow `Right, _) -> update t s RIGHT
   | `Key (`Arrow `Up, _) -> update t s UP
   | `Key (`Arrow `Down, _) -> update t s DOWN
   | `Key (`ASCII chr, _) -> update t s (INSERT chr)
   | `Key (`Backspace, _) -> update t s DELETE
-  | `Key (`Escape, _) -> ()
+  | `Key (`Escape, _) ->
+      save_file s "test.txt";
+      ()
   | `Mouse (`Press `Left, (x, y), _) -> update t s (MousePressLeft (x, y))
   | _ -> loop t s img
 

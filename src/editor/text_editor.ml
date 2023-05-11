@@ -41,7 +41,6 @@ let save_file state filename =
   List.iter (fun line -> output_string chan (line ^ "\n")) (get_text state);
   close_out chan
 
-
 let rec sublist b e l =
   match l with
   | [] -> []
@@ -229,3 +228,65 @@ let is_last_insert_space (s : editor_state) =
       (tuple_get_second s.cursor_pos + 1)
       (String.make 1 ' ')
   else s
+
+let get_select_start s =
+  match (s.selection_start, s.selection_end) with
+  | Some e1, Some e2 ->
+      let e1_t1 = tuple_get_first e1 in
+      let e1_t2 = tuple_get_second e1 in
+      let e2_t1 = tuple_get_first e2 in
+      let e2_t2 = tuple_get_second e2 in
+      if e1_t1 < e2_t1 || (e1_t1 = e2_t1 && e1_t2 < e2_t2) then Some e1
+      else Some e2
+  | _ -> None
+
+let get_select_end s =
+  match (s.selection_start, s.selection_end) with
+  | Some e1, Some e2 ->
+      let e1_t1 = tuple_get_first e1 in
+      let e1_t2 = tuple_get_second e1 in
+      let e2_t1 = tuple_get_first e2 in
+      let e2_t2 = tuple_get_second e2 in
+      if e1_t1 > e2_t1 || (e1_t1 = e2_t1 && e1_t2 > e2_t2) then Some e1
+      else Some e2
+  | _ -> None
+
+let convert_selection_to_string_list (s : editor_state) : string list =
+  match (get_select_start s, get_select_end s) with
+  | None, _ | _, None -> []
+  | Some selection_start, Some selection_end ->
+      let start_first = tuple_get_first selection_start in
+      let start_second = tuple_get_second selection_start in
+      let end_first = tuple_get_first selection_end in
+      let end_second = tuple_get_second selection_end in
+      (* same line one-element string list*)
+      if start_first = end_first then
+        [
+          String.sub
+            (List.nth s.text start_first)
+            start_second
+            (end_second + 1 - start_second);
+        ]
+      else
+        let _first = List.nth s.text start_first in
+        let _end = List.nth s.text end_first in
+        String.sub _first start_second (String.length _first - start_second)
+        :: sublist (start_first + 1) end_first s.text
+        @ [ String.sub _end 0 (end_second + 1) ]
+
+let insert_newline (s : editor_state) =
+  let nrows = List.length s.text in
+  let curs_pos = s.cursor_pos in
+  let row_pos = tuple_get_first curs_pos in
+  let col_pos = tuple_get_second curs_pos in
+  let row = get_nth_elm s.text row_pos in
+  let row_len = String.length row in
+  let left_substring_length = col_pos in
+  let right_substring_length = row_len - left_substring_length in
+  let newlineLeft = String.sub row 0 left_substring_length in
+  let newlineRight = String.sub row col_pos right_substring_length in
+  let newtext =
+    sublist 0 row_pos s.text @ [ newlineLeft ] @ [ newlineRight ]
+    @ sublist (row_pos + 1) (nrows - 1) s.text
+  in
+  { s with text = newtext; cursor_pos = (row_pos + 1, 0) }

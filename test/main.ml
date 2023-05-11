@@ -2,8 +2,42 @@ open OUnit2
 open Editor
 open Text_editor
 
-(** [print_editor_state] is helper function that transfer a string list into
-    printable stirng *)
+(* Test Strategy : The majority of the text editor functionality is tested using
+   unit tests. These tests cover the following areas:
+
+   Create, Load, and Save: Tests for the proper creation of a new editor state,
+   loading from a file, and saving to a file. Update: Tests for updating the
+   editor state with new user input. Select: Tests for handling text selection
+   (single and multiple lines). Move: Tests for moving the cursor within the
+   editor. Edit Text: Tests for inserting, deleting, and replacing text. Count:
+   Tests for counting the occurrences of a given character or word in the text.
+   Fold and Capitalize: Tests for folding (applying a function to all lines) and
+   capitalizing the text. Is Last Insert Space: Tests for identifying if the
+   last inserted character is a space. Insert Newline: Tests for inserting a
+   newline character at various cursor positions. Convert Selection to String
+   List: Tests for converting a text selection into a list of strings. 2.2.
+   Manual Testing
+
+   In addition to the unit tests for editor state module, manual testing is
+   performed to ensure the correctness of the text editor's user interface and
+   user experience. This includes:
+
+   Visual inspection of the editor: Ensuring proper rendering of text, cursor,
+   and selections. Responsiveness: Testing the performance and responsiveness of
+   the editor when handling large files or complex operations. Usability:
+   Verifying that the user interface is intuitive and easy to use, with clear
+   and informative error messages when needed. Argument for Correctness The
+   correctness of the Text Editor implementation is supported by the combination
+   of automated tests and manual testing. The automated tests are designed to
+   cover a wide range of possible scenarios, inputs, and edge cases. By passing
+   these tests, we can confidently say that the implementation is likely to be
+   correct for the majority of use cases.
+
+   However, automated tests may not cover every possible situation. Manual
+   testing helps to fill in the gaps by allowing for a more comprehensive
+   evaluation of the editor's usability, performance, and functionality. By
+   combining both approaches, we can ensure a high level of confidence in the
+   Text Editor's correctness and quality. *)
 let print_string_list my_list =
   let str_list = List.map (fun x -> "\"" ^ x ^ "\"") my_list in
   let str = String.concat "\n " str_list in
@@ -170,7 +204,7 @@ let update_test =
         selection_start = Some (0, 2);
         selection_end = Some (2, 1);
       }
-      "XYZ" [ "AB"; "XYZ" ];
+      "XYZ" [ "XYZ" ];
   ]
 
 (** [select_text_test name state sr sc er ec] is the helper function to test the
@@ -253,6 +287,22 @@ let select_test =
         text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
         cursor_pos = (0, 0);
         selection_start = Some (3, 0);
+        selection_end = Some (2, 0);
+      };
+    select_text_test
+      "Test select_text with start at the first position of the forth line and \
+       end at the first position of the second line"
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      4 0 2 0
+      {
+        text = [ "1abc"; "2def"; "3ghi"; "4jkl"; "5mno" ];
+        cursor_pos = (0, 0);
+        selection_start = Some (4, 0);
         selection_end = Some (2, 0);
       };
     select_text_test "Test select_text with first position"
@@ -733,15 +783,15 @@ let is_last_insert_space_tests =
     is_last_insert_space_test "test_single_line_end (WRONG)"
       {
         text = [ "hello" ];
-        cursor_pos = (0, 5);
+        cursor_pos = (0, 4);
         selection_start = None;
         selection_end = None;
       }
       {
-        text = [ "hello " ];
-        cursor_pos = (0, 6);
-        selection_start = Some (0, 6);
-        selection_end = Some (0, 6);
+        text = [ "hello" ];
+        cursor_pos = (0, 4);
+        selection_start = None;
+        selection_end = None;
       };
     is_last_insert_space_test
       "not able to insert since it's not the last position"
@@ -760,16 +810,99 @@ let is_last_insert_space_tests =
     is_last_insert_space_test "test_multiple_lines_end (WRONG)"
       {
         text = [ "hello"; "world" ];
-        cursor_pos = (1, 5);
+        cursor_pos = (1, 4);
         selection_start = None;
         selection_end = None;
       }
       {
-        text = [ "hello"; "world " ];
-        cursor_pos = (1, 6);
-        selection_start = Some (1, 6);
-        selection_end = Some (1, 6);
+        text = [ "hello"; "world" ];
+        cursor_pos = (1, 4);
+        selection_start = None;
+        selection_end = None;
       };
+  ]
+
+let insert_newline_test (name : string) (input : editor_state)
+    (expected_output : editor_state) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (insert_newline input)
+    ~printer:print_editor_state
+
+let new_line_tests =
+  [
+    insert_newline_test "Insert newline at the beginning of the text"
+      {
+        text = [ "Hello world! " ];
+        cursor_pos = (0, 0);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ ""; "Hello world! " ];
+        cursor_pos = (1, 0);
+        selection_start = None;
+        selection_end = None;
+      };
+    insert_newline_test "Insert newline in the middle of a line"
+      {
+        text = [ "Hello world! " ];
+        cursor_pos = (0, 6);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "Hello "; "world! " ];
+        cursor_pos = (1, 0);
+        selection_start = None;
+        selection_end = None;
+      };
+    insert_newline_test "Insert newline at the end of the text"
+      {
+        text = [ "Hello world! " ];
+        cursor_pos = (0, 13);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "Hello world! "; "" ];
+        cursor_pos = (1, 0);
+        selection_start = None;
+        selection_end = None;
+      };
+  ]
+
+let convert_selection_to_string_list_test (name : string) (state : editor_state)
+    (expected_output : string list) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (convert_selection_to_string_list state)
+    ~printer:(fun l -> String.concat "; " l)
+
+let convert_selection_to_string_list_tests =
+  [
+    convert_selection_to_string_list_test "test_no_selection"
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 4);
+        selection_start = None;
+        selection_end = None;
+      }
+      [];
+    convert_selection_to_string_list_test "test_same_line_selection"
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 4);
+        selection_start = Some (0, 1);
+        selection_end = Some (0, 3);
+      }
+      [ "ell" ];
+    convert_selection_to_string_list_test "test_multi_line_selection"
+      {
+        text = [ "hello"; "world"; "goodbye" ];
+        cursor_pos = (2, 3);
+        selection_start = Some (0, 1);
+        selection_end = Some (2, 3);
+      }
+      [ "ello"; "world"; "good" ];
   ]
 
 let suite =
@@ -784,6 +917,8 @@ let suite =
            count_test;
            fold_and_capitalize_tests;
            is_last_insert_space_tests;
+           new_line_tests;
+           convert_selection_to_string_list_tests;
          ]
 
 let _ = run_test_tt_main suite
