@@ -822,6 +822,40 @@ let is_last_insert_space_tests =
       };
   ]
 
+let convert_selection_to_string_list_test (name : string) (state : editor_state)
+    (expected_output : string list) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (convert_selection_to_string_list state)
+    ~printer:(fun l -> String.concat "; " l)
+
+let convert_selection_to_string_list_tests =
+  [
+    convert_selection_to_string_list_test "test_no_selection"
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 4);
+        selection_start = None;
+        selection_end = None;
+      }
+      [];
+    convert_selection_to_string_list_test "test_same_line_selection"
+      {
+        text = [ "hello" ];
+        cursor_pos = (0, 4);
+        selection_start = Some (0, 1);
+        selection_end = Some (0, 3);
+      }
+      [ "ell" ];
+    convert_selection_to_string_list_test "test_multi_line_selection"
+      {
+        text = [ "hello"; "world"; "goodbye" ];
+        cursor_pos = (2, 3);
+        selection_start = Some (0, 1);
+        selection_end = Some (2, 3);
+      }
+      [ "ello"; "world"; "good" ];
+  ]
+
 let insert_newline_test (name : string) (input : editor_state)
     (expected_output : editor_state) : test =
   name >:: fun _ ->
@@ -869,40 +903,45 @@ let new_line_tests =
         selection_start = None;
         selection_end = None;
       };
-  ]
-
-let convert_selection_to_string_list_test (name : string) (state : editor_state)
-    (expected_output : string list) : test =
-  name >:: fun _ ->
-  assert_equal expected_output (convert_selection_to_string_list state)
-    ~printer:(fun l -> String.concat "; " l)
-
-let convert_selection_to_string_list_tests =
-  [
-    convert_selection_to_string_list_test "test_no_selection"
+    insert_newline_test "Insert newline in an empty line"
       {
-        text = [ "hello" ];
-        cursor_pos = (0, 4);
+        text = [ "" ];
+        cursor_pos = (0, 0);
         selection_start = None;
         selection_end = None;
       }
-      [];
-    convert_selection_to_string_list_test "test_same_line_selection"
       {
-        text = [ "hello" ];
-        cursor_pos = (0, 4);
-        selection_start = Some (0, 1);
-        selection_end = Some (0, 3);
-      }
-      [ "ell" ];
-    convert_selection_to_string_list_test "test_multi_line_selection"
+        text = [ ""; "" ];
+        cursor_pos = (1, 0);
+        selection_start = None;
+        selection_end = None;
+      };
+    insert_newline_test "Insert newline in a line with multiple spaces"
       {
-        text = [ "hello"; "world"; "goodbye" ];
-        cursor_pos = (2, 3);
-        selection_start = Some (0, 1);
-        selection_end = Some (2, 3);
+        text = [ "  Hello   world!  " ];
+        cursor_pos = (0, 8);
+        selection_start = None;
+        selection_end = None;
       }
-      [ "ello"; "world"; "good" ];
+      {
+        text = [ "  Hello "; "  world!  " ];
+        cursor_pos = (1, 0);
+        selection_start = None;
+        selection_end = None;
+      };
+    insert_newline_test "Insert newline in a line with special characters"
+      {
+        text = [ "Hello, world! @#^&*()" ];
+        cursor_pos = (0, 12);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text = [ "Hello, world"; "! @#^&*()" ];
+        cursor_pos = (1, 0);
+        selection_start = None;
+        selection_end = None;
+      };
   ]
 
 let suite =
