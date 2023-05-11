@@ -287,6 +287,6 @@ let insert_newline (s : editor_state) =
   let newlineRight = String.sub row col_pos right_substring_length in
   let newtext =
     sublist 0 row_pos s.text @ [ newlineLeft ] @ [ newlineRight ]
-    @ sublist (row_pos + 1) (nrows - 1) s.text
+    @ sublist (row_pos + 1) nrows s.text
   in
   { s with text = newtext; cursor_pos = (row_pos + 1, 0) }

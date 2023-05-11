@@ -942,6 +942,32 @@ let new_line_tests =
         selection_start = None;
         selection_end = None;
       };
+    insert_newline_test "Insert newline in a longer text"
+      {
+        text =
+          [
+            "Once upon a time in a land far, far away,";
+            "there lived a young programmer who was";
+            "on a quest to learn OCaml and create";
+            "amazing software.";
+          ];
+        cursor_pos = (2, 24);
+        selection_start = None;
+        selection_end = None;
+      }
+      {
+        text =
+          [
+            "Once upon a time in a land far, far away,";
+            "there lived a young programmer who was";
+            "on a quest to learn OCam";
+            "l and create";
+            "amazing software.";
+          ];
+        cursor_pos = (3, 0);
+        selection_start = None;
+        selection_end = None;
+      };
   ]
 
 let suite =

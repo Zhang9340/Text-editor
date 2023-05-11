@@ -1,13 +1,5 @@
-thisisaline
-this is a line
-thie is a line
-this is a line
-this is a linethis is a linethis is a linethis is a line
-
-this is a line
-
-this is a line
-
-
-vv
-this is a line
+"Once upon a time in a land far, far away,"
+"there lived a young programmer who was"
+"on a quest to learn"
+"OCaml and create"
+"amazing software."
