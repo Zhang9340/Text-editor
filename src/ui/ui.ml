@@ -132,8 +132,8 @@ let ind_to_image str =
   loop 0 I.empty
 
 let header =
-  "[<-] LEFT, [^] UP, [->] RIGHT, [v] DOWN, [Enter] SAVE, [Esc] QUIT, [Left \
-   Click] SELECT , [Control c] Copy , [Control p] Paste"
+  "[<-] LEFT, [^] UP, [->] RIGHT, [v] DOWN, [Enter] NewLINE, [Esc] QUIT AND \
+   SAVE, [Left Click] SELECT , [Control c] Copy , [Control p] Paste"
 
 let select_indicator = "selecting..."
 let insert_indicator = "insert"
