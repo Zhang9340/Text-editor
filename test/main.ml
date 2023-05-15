@@ -3,7 +3,7 @@ open Editor
 open Text_editor
 
 (* Test Strategy : The majority of the text editor functionality is tested using
-   unit tests. These tests cover the following areas:
+   unit tests(black-box and glass-door). These tests cover the following areas:
 
    Create, Load, and Save: Tests for the proper creation of a new editor state,
    loading from a file, and saving to a file. Update: Tests for updating the
@@ -15,7 +15,7 @@ open Text_editor
    capitalizing the text. Is Last Insert Space: Tests for identifying if the
    last inserted character is a space. Insert Newline: Tests for inserting a
    newline character at various cursor positions. Convert Selection to String
-   List: Tests for converting a text selection into a list of strings. 
+   List: Tests for converting a text selection into a list of strings.
 
    In addition to the unit tests for editor state module, manual testing is
    performed to ensure the correctness of the text editor's user interface and
