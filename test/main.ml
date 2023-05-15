@@ -15,8 +15,7 @@ open Text_editor
    capitalizing the text. Is Last Insert Space: Tests for identifying if the
    last inserted character is a space. Insert Newline: Tests for inserting a
    newline character at various cursor positions. Convert Selection to String
-   List: Tests for converting a text selection into a list of strings. 2.2.
-   Manual Testing
+   List: Tests for converting a text selection into a list of strings. 
 
    In addition to the unit tests for editor state module, manual testing is
    performed to ensure the correctness of the text editor's user interface and

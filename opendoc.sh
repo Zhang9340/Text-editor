@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIB="Editor"
+LIB="Editor", "Ui"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS
