@@ -1,3 +1,15 @@
 1. Install OCaml : please follow the instruction on Canvas
 2. Install Notty : Please use the following command in the terminal :
-opam install notty 
+
+After downloading and unzipping the zip file with our system in it eithor using unzip {zipfile.zip} or through UI.
+1. Run [opam update] and [opam upgrade] to ensure the current system has the latest opam installed
+
+2. Run [opam install notty] to ensure the latest notty{0.2.3} module is installed locally
+
+3. Run [make check] to ensure the ocaml and its' components' version is corrected as 4.14.0 
+
+4. cd to the working directory of the project
+
+5. Run the command [make play] to start our project.
+
+6. Please be noted, only files under ./data folder can be openned and read. Saved file are created under the working directory as a new copy with same filename.
